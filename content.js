@@ -256,11 +256,13 @@ class LinkedInProfileTracker {
 
             // Replace the text node with highlighted content
             const parent = textNode.parentNode;
-            while (tempDiv.firstChild) {
-              parent.insertBefore(tempDiv.firstChild, textNode);
+            if (parent) {
+              while (tempDiv.firstChild) {
+                parent.insertBefore(tempDiv.firstChild, textNode);
+              }
+              parent.removeChild(textNode);
+              modified = true;
             }
-            parent.removeChild(textNode);
-            modified = true;
           }
         }
       });
