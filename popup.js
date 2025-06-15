@@ -8,9 +8,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const refreshBtn = document.getElementById("refreshBtn");
   const clearBtn = document.getElementById("clearBtn");
   const successMessage = document.getElementById("successMessage");
+  const keywordToggle = document.getElementById("keywordToggle");
+  const keywordsTextarea = document.getElementById("keywordsTextarea");
 
   // Load initial data
   await loadStats();
+  await loadKeywordSettings();
 
   // Event listeners
   refreshBtn.addEventListener("click", async () => {
@@ -40,7 +43,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
         await loadStats();
-        showSuccessMessage();
+        showSuccessMessage("Data cleared successfully!");
       } catch (error) {
         console.error("Error clearing data:", error);
       }
@@ -48,6 +51,25 @@ document.addEventListener("DOMContentLoaded", async () => {
       clearBtn.disabled = false;
       clearBtn.textContent = "Clear All Data";
     }
+  });
+
+  // Keyword toggle event listener
+  keywordToggle.addEventListener("change", async () => {
+    await saveKeywordSettings();
+    await notifyContentScript();
+    showSuccessMessage(
+      "Keyword highlighting " + (keywordToggle.checked ? "enabled" : "disabled")
+    );
+  });
+
+  // Keywords textarea event listener (debounced save)
+  let keywordSaveTimeout;
+  keywordsTextarea.addEventListener("input", () => {
+    clearTimeout(keywordSaveTimeout);
+    keywordSaveTimeout = setTimeout(async () => {
+      await saveKeywordSettings();
+      await notifyContentScript();
+    }, 1000); // Save after 1 second of no typing
   });
 
   async function loadStats() {
@@ -87,7 +109,60 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  function showSuccessMessage() {
+  async function loadKeywordSettings() {
+    try {
+      const result = await chrome.storage.local.get([
+        "keywordHighlightEnabled",
+        "highlightKeywords",
+      ]);
+
+      keywordToggle.checked = result.keywordHighlightEnabled !== false; // Default to true
+      keywordsTextarea.value = (result.highlightKeywords || []).join("\n");
+    } catch (error) {
+      console.error("Error loading keyword settings:", error);
+    }
+  }
+
+  async function saveKeywordSettings() {
+    try {
+      const keywords = keywordsTextarea.value
+        .split("\n")
+        .map((keyword) => keyword.trim())
+        .filter((keyword) => keyword.length > 0);
+
+      await chrome.storage.local.set({
+        keywordHighlightEnabled: keywordToggle.checked,
+        highlightKeywords: keywords,
+      });
+    } catch (error) {
+      console.error("Error saving keyword settings:", error);
+    }
+  }
+
+  async function notifyContentScript() {
+    try {
+      const tabs = await chrome.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
+      const currentTab = tabs[0];
+
+      if (
+        currentTab &&
+        currentTab.url &&
+        currentTab.url.includes("linkedin.com")
+      ) {
+        chrome.tabs.sendMessage(currentTab.id, {
+          action: "updateKeywordSettings",
+        });
+      }
+    } catch (error) {
+      console.error("Error notifying content script:", error);
+    }
+  }
+
+  function showSuccessMessage(message = "Data cleared successfully!") {
+    successMessage.textContent = message;
     successMessage.style.display = "block";
     setTimeout(() => {
       successMessage.style.display = "none";

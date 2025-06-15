@@ -3,6 +3,11 @@
 class LinkedInProfileTracker {
   constructor() {
     this.visitedProfiles = new Set();
+    this.keywordSettings = {
+      enabled: true,
+      keywords: [],
+    };
+    this.highlightedElements = new Set();
     this.init();
   }
 
@@ -10,17 +15,33 @@ class LinkedInProfileTracker {
     // Load existing visited profiles
     await this.loadVisitedProfiles();
 
+    // Load keyword settings
+    await this.loadKeywordSettings();
+
     // Track current profile visit if on a profile page
     this.trackCurrentProfile();
 
     // Mark visited profiles in search results and other listings
     this.markVisitedProfiles();
 
+    // Highlight keywords if enabled
+    this.highlightKeywords();
+
     // Set up observers for dynamic content
     this.setupObservers();
 
     // Re-check periodically for new content
-    setInterval(() => this.markVisitedProfiles(), 2000);
+    setInterval(() => {
+      this.markVisitedProfiles();
+      this.highlightKeywords();
+    }, 2000);
+
+    // Listen for messages from popup
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+      if (request.action === "updateKeywordSettings") {
+        this.handleKeywordSettingsUpdate();
+      }
+    });
   }
 
   async loadVisitedProfiles() {
@@ -37,6 +58,36 @@ class LinkedInProfileTracker {
         error
       );
     }
+  }
+
+  async loadKeywordSettings() {
+    try {
+      const result = await chrome.storage.local.get([
+        "keywordHighlightEnabled",
+        "highlightKeywords",
+      ]);
+
+      this.keywordSettings = {
+        enabled: result.keywordHighlightEnabled !== false, // Default to true
+        keywords: result.highlightKeywords || [],
+      };
+    } catch (error) {
+      console.log(
+        "LinkedIn Profile Tracker: Error loading keyword settings:",
+        error
+      );
+    }
+  }
+
+  async handleKeywordSettingsUpdate() {
+    // Clear existing highlights
+    this.clearAllHighlights();
+
+    // Reload settings
+    await this.loadKeywordSettings();
+
+    // Re-highlight with new settings
+    this.highlightKeywords();
   }
 
   async saveVisitedProfiles() {
@@ -94,6 +145,187 @@ class LinkedInProfileTracker {
     });
   }
 
+  highlightKeywords() {
+    if (
+      !this.keywordSettings.enabled ||
+      this.keywordSettings.keywords.length === 0
+    ) {
+      return;
+    }
+
+    // Select text nodes to search in (avoiding already highlighted content)
+    const textSelectors = [
+      ".feed-shared-update-v2__description",
+      ".update-components-text",
+      ".pv-entity__summary-info",
+      ".pv-profile-section__card-item-v2",
+      ".entity-result__primary-subtitle",
+      ".entity-result__secondary-subtitle",
+      ".artdeco-entity-lockup__subtitle",
+      ".artdeco-entity-lockup__caption",
+      ".job-details-jobs-unified-top-card__job-insight",
+      ".jobs-unified-top-card__content",
+      "h1",
+      "h2",
+      "h3",
+      "h4",
+      "h5",
+      "h6",
+      "p",
+      "span",
+      "div",
+    ];
+
+    const elementsToSearch = document.querySelectorAll(
+      textSelectors.join(", ")
+    );
+
+    elementsToSearch.forEach((element) => {
+      if (
+        !element.dataset.keywordProcessed &&
+        this.shouldProcessElement(element)
+      ) {
+        this.highlightKeywordsInElement(element);
+        element.dataset.keywordProcessed = "true";
+      }
+    });
+  }
+
+  shouldProcessElement(element) {
+    // Skip elements that are already highlighted or are part of the extension
+    if (
+      element.closest(".linkedin-visited-indicator") ||
+      element.classList.contains("linkedin-keyword-highlight") ||
+      element.closest(".linkedin-keyword-highlight")
+    ) {
+      return false;
+    }
+
+    // Skip script tags, style tags, and other irrelevant elements
+    const tagName = element.tagName.toLowerCase();
+    if (["script", "style", "noscript", "svg", "canvas"].includes(tagName)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  highlightKeywordsInElement(element) {
+    if (!element.textContent || element.textContent.trim().length === 0) {
+      return;
+    }
+
+    // Skip elements with complex HTML structure to avoid breaking layout
+    if (
+      element.querySelector('a[href*="linkedin.com/leadGenForm"]') ||
+      element.querySelector("[data-test-app-aware-link]") ||
+      element.innerHTML.includes("data-") ||
+      element.innerHTML.includes("href=") ||
+      element.innerHTML.length > element.textContent.length * 3
+    ) {
+      return;
+    }
+
+    // Only process text-heavy elements
+    const textNodes = this.getTextNodes(element);
+    if (textNodes.length === 0) return;
+
+    let modified = false;
+
+    textNodes.forEach((textNode) => {
+      let text = textNode.textContent;
+
+      this.keywordSettings.keywords.forEach((keyword, index) => {
+        if (keyword.trim().length === 0) return;
+
+        const regex = new RegExp(
+          `\\b(${this.escapeRegExp(keyword.trim())})\\b`,
+          "gi"
+        );
+
+        if (regex.test(text)) {
+          const colorClass = `keyword-${index % 10}`;
+          const highlightedText = text.replace(
+            regex,
+            `<span class="linkedin-keyword-highlight ${colorClass} newly-highlighted">$1</span>`
+          );
+
+          if (highlightedText !== text) {
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = highlightedText;
+
+            // Replace the text node with highlighted content
+            const parent = textNode.parentNode;
+            while (tempDiv.firstChild) {
+              parent.insertBefore(tempDiv.firstChild, textNode);
+            }
+            parent.removeChild(textNode);
+            modified = true;
+          }
+        }
+      });
+    });
+
+    if (modified) {
+      this.highlightedElements.add(element);
+
+      // Remove the animation class after animation completes
+      setTimeout(() => {
+        const highlights = element.querySelectorAll(".newly-highlighted");
+        highlights.forEach((highlight) => {
+          highlight.classList.remove("newly-highlighted");
+        });
+      }, 600);
+    }
+  }
+
+  getTextNodes(element) {
+    const textNodes = [];
+    const walker = document.createTreeWalker(
+      element,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+
+    let node;
+    while ((node = walker.nextNode())) {
+      if (node.textContent.trim().length > 0) {
+        textNodes.push(node);
+      }
+    }
+
+    return textNodes;
+  }
+
+  escapeRegExp(string) {
+    // Escape special regex characters
+    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  clearAllHighlights() {
+    // Remove all keyword highlights
+    const highlights = document.querySelectorAll(".linkedin-keyword-highlight");
+    highlights.forEach((highlight) => {
+      const parent = highlight.parentNode;
+      parent.replaceChild(
+        document.createTextNode(highlight.textContent),
+        highlight
+      );
+      parent.normalize(); // Merge adjacent text nodes
+    });
+
+    // Reset processed flags
+    const processedElements = document.querySelectorAll(
+      "[data-keyword-processed]"
+    );
+    processedElements.forEach((element) => {
+      delete element.dataset.keywordProcessed;
+    });
+
+    this.highlightedElements.clear();
+  }
+
   addVisitedIndicator(element) {
     // Don't add multiple indicators
     if (element.querySelector(".linkedin-visited-indicator")) {
@@ -149,6 +381,7 @@ class LinkedInProfileTracker {
         setTimeout(() => {
           this.trackCurrentProfile();
           this.markVisitedProfiles();
+          this.highlightKeywords();
         }, 1000);
       }
     });
@@ -163,7 +396,10 @@ class LinkedInProfileTracker {
       });
 
       if (shouldCheck) {
-        setTimeout(() => this.markVisitedProfiles(), 500);
+        setTimeout(() => {
+          this.markVisitedProfiles();
+          this.highlightKeywords();
+        }, 500);
       }
     });
 

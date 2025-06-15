@@ -25,6 +25,71 @@
   background: rgba(156, 163, 175, 0.02) !important;
 }
 
+/* Keyword Highlighting Styles */
+.linkedin-keyword-highlight {
+  background: #fef08a !important;
+  color: #854d0e !important;
+  padding: 1px 2px !important;
+  border-radius: 2px !important;
+  font-weight: 500 !important;
+  box-shadow: 0 1px 2px rgba(252, 211, 77, 0.3) !important;
+  transition: all 0.2s ease !important;
+}
+
+.linkedin-keyword-highlight:hover {
+  background: #fcd34d !important;
+  color: #92400e !important;
+  transform: scale(1.02) !important;
+}
+
+/* Keyword highlighting with different colors for variety */
+.linkedin-keyword-highlight.keyword-0 {
+  background: #fef08a !important; /* Yellow */
+  color: #854d0e !important;
+}
+
+.linkedin-keyword-highlight.keyword-1 {
+  background: #bbf7d0 !important; /* Green */
+  color: #166534 !important;
+}
+
+.linkedin-keyword-highlight.keyword-2 {
+  background: #dbeafe !important; /* Blue */
+  color: #1e40af !important;
+}
+
+.linkedin-keyword-highlight.keyword-3 {
+  background: #f3e8ff !important; /* Purple */
+  color: #7c3aed !important;
+}
+
+.linkedin-keyword-highlight.keyword-4 {
+  background: #fed7d7 !important; /* Pink */
+  color: #be185d !important;
+}
+
+/* Cycle through colors for more keywords */
+.linkedin-keyword-highlight.keyword-5 {
+  background: #fef08a !important;
+  color: #854d0e !important;
+}
+.linkedin-keyword-highlight.keyword-6 {
+  background: #bbf7d0 !important;
+  color: #166534 !important;
+}
+.linkedin-keyword-highlight.keyword-7 {
+  background: #dbeafe !important;
+  color: #1e40af !important;
+}
+.linkedin-keyword-highlight.keyword-8 {
+  background: #f3e8ff !important;
+  color: #7c3aed !important;
+}
+.linkedin-keyword-highlight.keyword-9 {
+  background: #fed7d7 !important;
+  color: #be185d !important;
+}
+
 /* Specific styling for different LinkedIn layouts */
 
 /* Search results */
@@ -99,6 +164,11 @@
     top: 4px;
     right: 4px;
   }
+
+  .linkedin-keyword-highlight {
+    padding: 0px 1px !important;
+    font-size: 0.9em !important;
+  }
 }
 
 /* Animation for newly detected visited profiles */
@@ -116,4 +186,24 @@
   100% {
     box-shadow: 0 0 0 0 rgba(156, 163, 175, 0);
   }
+}
+
+/* Animation for newly highlighted keywords */
+@keyframes keywordHighlight {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(252, 211, 77, 0.6);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 4px rgba(252, 211, 77, 0.2);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(252, 211, 77, 0);
+  }
+}
+
+.linkedin-keyword-highlight.newly-highlighted {
+  animation: keywordHighlight 0.6s ease-in-out;
 }
