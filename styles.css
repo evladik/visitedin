@@ -4,7 +4,7 @@
   position: absolute;
   top: 8px;
   right: 8px;
-  background: #0a66c2;
+  background: #9ca3af;
   color: white;
   font-size: 10px;
   font-weight: bold;
@@ -20,51 +20,51 @@
 
 .linkedin-visited-profile {
   position: relative;
-  border: 2px solid #0a66c2 !important;
+  border: 2px solid #9ca3af !important;
   border-radius: 8px !important;
-  background: rgba(10, 102, 194, 0.02) !important;
+  background: rgba(156, 163, 175, 0.02) !important;
 }
 
 /* Specific styling for different LinkedIn layouts */
 
 /* Search results */
 .entity-result.linkedin-visited-profile {
-  border-left: 4px solid #0a66c2 !important;
+  border-left: 4px solid #9ca3af !important;
   background: linear-gradient(
     90deg,
-    rgba(10, 102, 194, 0.05) 0%,
+    rgba(156, 163, 175, 0.05) 0%,
     transparent 100%
   ) !important;
 }
 
 /* People you may know cards */
 .pv-browsemap-section-v2__member-container.linkedin-visited-profile {
-  box-shadow: 0 0 0 2px #0a66c2 !important;
+  box-shadow: 0 0 0 2px #9ca3af !important;
   border-radius: 8px !important;
 }
 
 /* Profile discovery cards */
 .artdeco-card.linkedin-visited-profile {
-  border: 2px solid #0a66c2 !important;
-  box-shadow: 0 2px 8px rgba(10, 102, 194, 0.15) !important;
+  border: 2px solid #9ca3af !important;
+  box-shadow: 0 2px 8px rgba(156, 163, 175, 0.15) !important;
 }
 
 /* Small profile cards */
 .ember-view.linkedin-visited-profile {
-  outline: 2px solid #0a66c2 !important;
+  outline: 2px solid #9ca3af !important;
   outline-offset: 2px;
   border-radius: 4px !important;
 }
 
 /* Hover effects */
 .linkedin-visited-profile:hover {
-  background: rgba(10, 102, 194, 0.08) !important;
+  background: rgba(156, 163, 175, 0.08) !important;
   transform: translateY(-1px);
   transition: all 0.2s ease;
 }
 
 .linkedin-visited-indicator:hover {
-  background: #004182;
+  background: #6b7280;
   transform: scale(1.05);
   transition: all 0.2s ease;
 }
@@ -80,15 +80,15 @@
 
 /* For list view items */
 .reusable-search-simple-insight__container.linkedin-visited-profile {
-  border-left: 3px solid #0a66c2 !important;
+  border-left: 3px solid #9ca3af !important;
   padding-left: 12px !important;
 }
 
 /* Messaging and connection cards */
 .msg-conversation-listitem.linkedin-visited-profile,
 .connection-card.linkedin-visited-profile {
-  background: rgba(10, 102, 194, 0.03) !important;
-  border-left: 3px solid #0a66c2 !important;
+  background: rgba(156, 163, 175, 0.03) !important;
+  border-left: 3px solid #9ca3af !important;
 }
 
 /* Responsive adjustments */
@@ -108,12 +108,12 @@
 
 @keyframes visitedProfileHighlight {
   0% {
-    box-shadow: 0 0 0 0 rgba(10, 102, 194, 0.4);
+    box-shadow: 0 0 0 0 rgba(156, 163, 175, 0.4);
   }
   50% {
-    box-shadow: 0 0 0 8px rgba(10, 102, 194, 0.1);
+    box-shadow: 0 0 0 8px rgba(156, 163, 175, 0.1);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(10, 102, 194, 0);
+    box-shadow: 0 0 0 0 rgba(156, 163, 175, 0);
   }
 }

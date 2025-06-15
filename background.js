@@ -24,10 +24,10 @@ async function cleanupOldEntries() {
       "lastCleanup",
     ]);
     const now = Date.now();
-    const oneWeek = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+    const daysToFlush = 150 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
     // Only cleanup once per week
-    if (!result.lastCleanup || now - result.lastCleanup > oneWeek) {
+    if (!result.lastCleanup || now - result.lastCleanup > daysToFlush) {
       // For now, we'll keep all entries, but this could be modified
       // to remove entries older than a certain period
 
