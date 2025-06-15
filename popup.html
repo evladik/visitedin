@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body {
+        width: 320px;
+        padding: 16px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        margin: 0;
+        background: #f8f9fa;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .header h1 {
+        color: #0a66c2;
+        font-size: 18px;
+        margin: 0 0 8px 0;
+        font-weight: 600;
+      }
+
+      .header p {
+        color: #666;
+        font-size: 12px;
+        margin: 0;
+      }
+
+      .stats {
+        background: white;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .stat-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+      }
+
+      .stat-item:last-child {
+        border-bottom: none;
+      }
+
+      .stat-label {
+        color: #333;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .stat-value {
+        color: #0a66c2;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .btn {
+        background: #0a66c2;
+        color: white;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+
+      .btn:hover {
+        background: #004182;
+      }
+
+      .btn.danger {
+        background: #cc1016;
+      }
+
+      .btn.danger:hover {
+        background: #a00d12;
+      }
+
+      .btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      .loading {
+        text-align: center;
+        color: #666;
+        font-size: 14px;
+        padding: 20px;
+      }
+
+      .success-message {
+        background: #d4edda;
+        color: #155724;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        margin-top: 8px;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>LinkedIn Profile Tracker</h1>
+      <p>Track which profiles you've already visited</p>
+    </div>
+
+    <div id="loading" class="loading">Loading statistics...</div>
+
+    <div id="content" style="display: none">
+      <div class="stats">
+        <div class="stat-item">
+          <span class="stat-label">Profiles Visited</span>
+          <span class="stat-value" id="visitedCount">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Status</span>
+          <span class="stat-value" id="status">Active</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="refreshBtn">Refresh Data</button>
+        <button class="btn danger" id="clearBtn">Clear All Data</button>
+      </div>
+
+      <div class="success-message" id="successMessage">
+        Data cleared successfully!
+      </div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
