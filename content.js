@@ -201,6 +201,22 @@ class LinkedInProfileTracker {
       return false;
     }
 
+    // Skip LinkedIn's text truncation components (line-clamp system)
+    if (
+      /*
+      element.closest(".lt-line-clamp") ||
+      element.classList.contains("lt-line-clamp") ||
+      element.closest(".lt-line-clamp__line") ||
+      element.classList.contains("lt-line-clamp__line") ||
+      element.closest(".lt-line-clamp__ellipsis") ||
+      element.classList.contains("lt-line-clamp__ellipsis") ||
+      element.closest(".lt-line-clamp__dummy-element") ||
+      */
+      element.classList.contains("lt-line-clamp__dummy-element")
+    ) {
+      return false;
+    }
+
     // Skip script tags, style tags, and other irrelevant elements
     const tagName = element.tagName.toLowerCase();
     if (["script", "style", "noscript", "svg", "canvas"].includes(tagName)) {
@@ -222,6 +238,16 @@ class LinkedInProfileTracker {
       element.innerHTML.includes("data-") ||
       element.innerHTML.includes("href=") ||
       element.innerHTML.length > element.textContent.length * 3
+    ) {
+      return;
+    }
+
+    // Skip LinkedIn's text truncation system components
+    if (
+      element.querySelector(".lt-line-clamp") ||
+      element.querySelector(".lt-line-clamp__line") ||
+      element.querySelector(".lt-line-clamp__ellipsis") ||
+      element.querySelector(".lt-line-clamp__dummy-element")
     ) {
       return;
     }
