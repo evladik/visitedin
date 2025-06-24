@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LinkedIn Profile Tracker",
-  "version": "1.0",
+  "version": "1.0.1",
   "description": "Track and highlight LinkedIn profiles you've already visited",
   "permissions": ["storage", "activeTab"],
   "host_permissions": ["*://*.linkedin.com/*"],
